@@ -6,6 +6,6 @@ import eventRouter from "./event/event.routes";
 const router = express.Router();
 
 router.use("/users", userRouter);
-router.use("/books", eventRouter);
+router.use("/events", eventRouter);
 
-module.exports = router;
+export default router;

@@ -3,6 +3,10 @@ const router = express.Router();
 
 import { getUser } from "./user.controller";
 
-router.get("/", getUser);
+router.post("/", getUser);
+router.put("/:userid", getUser);
+router.get("/:userid", getUser);
+router.get("/?userids=", getUser);
+router.delete("/:userid", getUser);
 
 export default router;

@@ -2,7 +2,8 @@ import express from "express";
 import {
   createEvent,
   updateEvent,
-  updateAttendees,
+  addAttendee,
+  removeAttendee,
   getEvents,
   getEventWithCategories,
   getUpcomingEvents,
@@ -15,10 +16,11 @@ import { getEvent } from "./event.controller";
 
 router.post("/", createEvent);
 router.put("/:eventid", updateEvent);
-router.put("/update-attendees/:eventid", updateAttendees);
+router.post("/add-attendee/:eventid", addAttendee);
+router.delete("/remove-attendee/:eventid", removeAttendee);
 router.get("/:eventid", getEvent);
 router.get("/", getEvents);
-router.get("/categories=", getEventWithCategories);
+router.get("/categories", getEventWithCategories);
 router.get("/get-upcoming-events", getUpcomingEvents);
 router.delete("/:eventId", deleteEvent);
 

@@ -11,8 +11,12 @@ import { getUser } from "./user.controller";
 
 router.post("/", createUser);
 router.put("/:userid", updateUser);
+
+// colon for path params to change route
 router.get("/:userid", getUser);
-router.get("/?userids=", getUsers);
+
+// query params is always slash
+router.get("/", getUsers);
 router.delete("/:userid", deleteUser);
 
 export default router;

@@ -1,16 +1,15 @@
-enum EventCategory {
-	sports = "sports",
-	studying = "studying",
-	
+export enum EventCategory {
+  sports = "Sports",
+  studying = "Studying",
 }
 
-interface Event {
-	id: number;
-	hostid: number;
-	name: string;
-	description: string;
-	location: string;
-	startTimeStamp: Date;
-	endTimeStamp: Date;
-	categories: EventCategory[];
+export interface Event {
+  id?: number;
+  hostid: number;
+  name: string;
+  description: string;
+  location: string;
+  startTimeStamp: string;
+  endTimeStamp: string;
+  categories: EventCategory[];
 }

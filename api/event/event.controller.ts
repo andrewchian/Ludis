@@ -159,16 +159,19 @@ export async function getEvents(req: Request, res: Response) {
   });
 }
 
+/*
+will implement later
+
 export async function getEventWithCategories(req: Request, res: Response) {
   console.log("anything");
-  const categories = req.query.categories as unknown as string[];
+  const categories = req.query.categories as unknown as string;
 
   console.log(req.query.categories);
 
   let sqlStatement = "SELECT id FROM Events WHERE categories ";
-  categories.map((cat, i) => {
+  categories.split(",").map((cat, i) => {
     if (i != 0) {
-      sqlStatement += "OR ";
+      sqlStatement += " OR ";
     }
     sqlStatement += "LIKE '%" + cat + "%'";
   });
@@ -180,12 +183,32 @@ export async function getEventWithCategories(req: Request, res: Response) {
 
   return res.json({ eventids });
 }
+*/
 
 export async function getUpcomingEvents(req: Request, res: Response) {
   const { offset, limit } = req.query; //object destructuring
-  return res.json({
-    message: `Getting upcoming events: limit = ${limit}, offest = ${offset}`,
+
+  // todo
+  // incorporate offset
+
+  const sqlStatement = `SELECT * FROM Events WHERE starttimestamp > CURRENT_DATE ORDER BY starttimestamp ASC LIMIT ${limit}`;
+
+  const sqlResponse = await pool.query(sqlStatement);
+
+  const upcomingEvents = sqlResponse.rows.map((e) => {
+    const event: Event = {
+      ...e,
+      startTimeStamp: e.starttimestamp,
+      endTimeStamp: e.endtimestamp,
+    };
+    return event;
   });
+
+  return res
+    .json({
+      events: upcomingEvents,
+    })
+    .status(200);
 }
 
 export async function deleteEvent(req: Request, res: Response) {

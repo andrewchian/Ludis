@@ -1,8 +1,9 @@
 export enum Major {
-  ComputerScience = "Computer Science",
+  ComputerScience = 'Computer Science',
+  // TODO: add more majors
 }
 
-export interface User {
+export default interface User {
   id?: number;
   email: string;
   name: string;

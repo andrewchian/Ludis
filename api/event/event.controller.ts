@@ -1,12 +1,10 @@
-import { Request, Response } from "express";
-import pool from "../db/connection";
-import { fixString } from "../util";
-import { Event, EventCategory } from "./event.model";
+import { Request, Response } from 'express';
+
+import pool from '../db/connection';
+import Event from './event.model';
+import { fixString } from '../util';
 
 export async function createEvent(req: Request, res: Response) {
-  //const body = req.body;
-  //return res.json({ message: "Creating event: " + body });
-
   let {
     hostid,
     name,
@@ -28,17 +26,16 @@ export async function createEvent(req: Request, res: Response) {
   };
 
   const categoriesAsString = event.categories
-    .map((cat) => cat.valueOf())
-    .join(", ");
+    .map(cat => cat.valueOf())
+    .join(', ');
 
-  let sqlStatement: string = `INSERT INTO Events (hostid, name, description, location, startTimeStamp, endTimeStamp, categories) VALUES
-    (${event.hostid}, '${fixString(event.name)}', '${fixString(
-    event.description
-  )}', '${fixString(event.location)}', '${fixString(
-    startTimeStamp
-  )}', '${fixString(endTimeStamp)}', '${categoriesAsString}'
-    )`;
+  let sqlStatement: string = `INSERT INTO Events (hostid, name, description, location, startTimeStamp, endTimeStamp, categories)
+    VALUES (${event.hostid}, '${fixString(event.name)}',
+    '${fixString(event.description)}', '${fixString(event.location)}',
+    '${fixString(startTimeStamp)}', '${fixString(endTimeStamp)}',
+    '${categoriesAsString}')`;
 
+  // creating event
   try {
     await pool.query(sqlStatement);
   } catch (error) {
@@ -49,25 +46,21 @@ export async function createEvent(req: Request, res: Response) {
       .status(500);
   }
 
-  console.log("event made");
-
+  // adding host
   let eventid = await pool.query(
-    "SELECT id FROM Events WHERE name = '" + name + "'"
+    `SELECT id FROM Events WHERE name = '${name}'`
   );
   eventid = eventid.rows[0].id;
 
-  console.log("event id found:" + eventid);
-
   sqlStatement = `INSERT INTO HostEvents (hostid, eventid) VALUES (${hostid}, ${eventid})`;
   await pool.query(sqlStatement);
-
-  console.log("host added");
 
   return res.json({ event }).status(201);
 }
 
 export async function updateEvent(req: Request, res: Response) {
   const eventid = parseInt(req.params.eventid);
+
   const {
     hostid,
     name,
@@ -78,15 +71,14 @@ export async function updateEvent(req: Request, res: Response) {
     categories,
   } = req.body as unknown as Event;
 
-  let sqlStatement = `UPDATE Events SET 
-    name = '${fixString(
-      name
-    )}', description = '${description}', hostid = ${hostid},
-    location = '${fixString(location)}', startTimeStamp = '${fixString(
-    startTimeStamp
-  )}', endTimeStamp = '${fixString(endTimeStamp)}', categories = '${categories
-    .map((cat) => cat.valueOf())
-    .join(", ")}'
+  const categoriesAsString = categories.map(cat => cat.valueOf()).join(', ');
+
+  let sqlStatement = `UPDATE Events SET
+    name = '${fixString(name)}', description = '${description}',
+    hostid = ${hostid}, location = '${fixString(location)}',
+    startTimeStamp = '${fixString(startTimeStamp)}',
+    endTimeStamp = '${fixString(endTimeStamp)}',
+    categories = '${categoriesAsString}'
     WHERE id = ${eventid}`;
 
   try {
@@ -103,60 +95,76 @@ export async function updateEvent(req: Request, res: Response) {
 }
 
 export async function addAttendee(req: Request, res: Response) {
-  const userid = req.query.userid as unknown as number; // query param casts as unkown first
-  const eventid = req.params.eventid; // path variable
+  const userid = req.query.userid;
+  const eventid = req.params.eventid;
 
   await pool.query(
     `INSERT INTO EventAttendees (eventid, attendeeid) VALUES (${eventid}, ${userid})`
   );
 
-  return res.json({
-    message: `Updating attendees: user = ${userid}, event = ${eventid}`,
-  });
+  return res
+    .json({
+      message: `Updating attendees: user = ${userid}, event = ${eventid}`,
+    })
+    .status(201);
 }
 
 export async function removeAttendee(req: Request, res: Response) {
-  const userid = req.query.userid as unknown as number; // query param casts as unkown first
-  const eventid = req.params.eventid; // path variable
+  const userid = req.query.userid;
+  const eventid = req.params.eventid;
 
   await pool.query(
     `DELETE FROM EventAttendees WHERE eventid = ${eventid} AND Attendeeid = ${userid}`
   );
 
-  return res.json({
-    message: `Updating attendees: user = ${userid}, event = ${eventid}`,
-  });
+  return res
+    .json({
+      message: `Updating attendees: user = ${userid}, event = ${eventid}`,
+    })
+    .status(201);
 }
 
 export async function getEvent(req: Request, res: Response) {
   const eventid = req.params.eventid;
-  pool.query(
-    "SELECT * FROM Events WHERE id = " + eventid,
-    (err, queryResponse) => {
-      const event = queryResponse.rows[0];
-      return res.json({ event }).status(200);
-    }
+
+  const sqlResponse = await pool.query(
+    `SELECT * FROM Events WHERE id = ${eventid}`
   );
+
+  const data = sqlResponse.rows[0];
+  const event: Event = {
+    ...data,
+    startTimeStamp: data.starttimestamp,
+    endTimeStamp: data.endtimestamp,
+  };
+
+  return res.json({ event }).status(200);
 }
 
 export async function getEvents(req: Request, res: Response) {
-  // const eventids = req.query.eventids;
-  // return res.json({ message: "Getting events: " + eventids });
-
   const eventids = req.body.eventids as unknown as number[];
 
-  let sqlStatement = "SELECT * FROM Events WHERE ";
+  let sqlStatement = 'SELECT * FROM Events WHERE ';
   eventids.map((id, i) => {
-    sqlStatement += "id = " + id;
+    sqlStatement += 'id = ' + id;
     if (i != eventids.length - 1) {
-      sqlStatement += " OR ";
+      sqlStatement += ' OR ';
     }
   });
 
-  pool.query(sqlStatement, (err, queryResponse) => {
-    const events = queryResponse.rows;
-    return res.json({ events }).status(200);
+  const sqlResponse = await pool.query(sqlStatement);
+  const data = sqlResponse.rows;
+  const events: Event[] = data.map(row => {
+    const event: Event = {
+      ...row,
+      startTimeStamp: row.starttimestamp,
+      endTimeStamp: row.endtimestamp,
+    };
+
+    return event;
   });
+
+  return res.json({ events }).status(200);
 }
 
 /*
@@ -195,7 +203,7 @@ export async function getUpcomingEvents(req: Request, res: Response) {
 
   const sqlResponse = await pool.query(sqlStatement);
 
-  const upcomingEvents = sqlResponse.rows.map((e) => {
+  const upcomingEvents = sqlResponse.rows.map(e => {
     const event: Event = {
       ...e,
       startTimeStamp: e.starttimestamp,
@@ -214,10 +222,10 @@ export async function getUpcomingEvents(req: Request, res: Response) {
 export async function deleteEvent(req: Request, res: Response) {
   const eventid = req.params.eventid;
   pool.query(
-    "DELETE FROM Events WHERE  id = " + eventid,
+    'DELETE FROM Events WHERE  id = ' + eventid,
     (err, queryResponse) => {
       return res.json({
-        message: "User deleted: " + eventid,
+        message: 'User deleted: ' + eventid,
       });
     }
   );

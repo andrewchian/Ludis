@@ -1,9 +1,10 @@
 export enum EventCategory {
-  sports = "Sports",
-  studying = "Studying",
+  sports = 'Sports',
+  studying = 'Studying',
+  // TODO: add more categories
 }
 
-export interface Event {
+export default interface Event {
   id?: number;
   hostid: number;
   name: string;

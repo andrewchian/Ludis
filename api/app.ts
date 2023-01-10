@@ -1,21 +1,17 @@
-import "reflect-metadata";
-import express, { Request, Response } from "express";
-import router from "./router";
+import 'reflect-metadata';
+import express from 'express';
+
+import router from './router';
 
 const app = express();
-
 app.use(express.json());
 
-app.use("/api", router);
-
-app.get("/", (req: Request, res: Response): Response => {
-  return res.json({ message: "It works!" });
-});
+app.use('/api', router);
 
 const start = async (): Promise<void> => {
   try {
     app.listen(3000, () => {
-      console.log("Server started at http://localhost:3000");
+      console.log('Server started at http://localhost:3000');
     });
   } catch (error) {
     console.error(error);

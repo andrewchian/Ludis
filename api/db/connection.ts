@@ -1,6 +1,6 @@
-import { Pool } from "pg";
+import { Pool } from 'pg';
 
-require("dotenv").config();
+require('dotenv').config();
 
 let { DB_USERNAME, DB_PASSWORD, DB_SERVER } = process.env;
 

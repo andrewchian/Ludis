@@ -1,22 +1,19 @@
-import express from "express";
+import express from 'express';
+
 import {
+  getUser,
   createUser,
   updateUser,
   getUsers,
   deleteUser,
-} from "./user.controller";
+} from './user.controller';
+
 const router = express.Router();
 
-import { getUser } from "./user.controller";
-
-router.post("/", createUser);
-router.put("/:userid", updateUser);
-
-// colon for path params to change route
-router.get("/:userid", getUser);
-
-// query params is always slash
-router.get("/", getUsers);
-router.delete("/:userid", deleteUser);
+router.post('/', createUser);
+router.get('/:userid', getUser);
+router.get('/', getUsers);
+router.put('/:userid', updateUser);
+router.delete('/:userid', deleteUser);
 
 export default router;

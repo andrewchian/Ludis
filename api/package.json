@@ -1,7 +1,5 @@
 {
   "name": "ludis",
-  "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "start": "ts-node-dev app.ts"
@@ -9,12 +7,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andrewchian/Ludis.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/andrewchian/Ludis/issues"
   },
   "homepage": "https://github.com/andrewchian/Ludis#readme",
   "devDependencies": {

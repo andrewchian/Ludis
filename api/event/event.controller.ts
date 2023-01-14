@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 
-import pool from '../db/connection';
-import Event from './event.model';
-import { fixString } from '../util';
+import pool from "../db/connection";
+import Event from "./event.model";
+import { fixString } from "../util";
 
 export async function createEvent(req: Request, res: Response) {
   let {
@@ -26,8 +26,8 @@ export async function createEvent(req: Request, res: Response) {
   };
 
   const categoriesAsString = event.categories
-    .map(cat => cat.valueOf())
-    .join(', ');
+    .map((cat) => cat.valueOf())
+    .join(", ");
 
   let sqlStatement: string = `INSERT INTO Events (hostid, name, description, location, startTimeStamp, endTimeStamp, categories)
     VALUES (${event.hostid}, '${fixString(event.name)}',
@@ -71,7 +71,7 @@ export async function updateEvent(req: Request, res: Response) {
     categories,
   } = req.body as unknown as Event;
 
-  const categoriesAsString = categories.map(cat => cat.valueOf()).join(', ');
+  const categoriesAsString = categories.map((cat) => cat.valueOf()).join(", ");
 
   let sqlStatement = `UPDATE Events SET
     name = '${fixString(name)}', description = '${description}',
@@ -144,17 +144,17 @@ export async function getEvent(req: Request, res: Response) {
 export async function getEvents(req: Request, res: Response) {
   const eventids = req.body.eventids as unknown as number[];
 
-  let sqlStatement = 'SELECT * FROM Events WHERE ';
+  let sqlStatement = "SELECT * FROM Events WHERE ";
   eventids.map((id, i) => {
-    sqlStatement += 'id = ' + id;
+    sqlStatement += "id = " + id;
     if (i != eventids.length - 1) {
-      sqlStatement += ' OR ';
+      sqlStatement += " OR ";
     }
   });
 
   const sqlResponse = await pool.query(sqlStatement);
   const data = sqlResponse.rows;
-  const events: Event[] = data.map(row => {
+  const events: Event[] = data.map((row) => {
     const event: Event = {
       ...row,
       startTimeStamp: row.starttimestamp,
@@ -203,7 +203,7 @@ export async function getUpcomingEvents(req: Request, res: Response) {
 
   const sqlResponse = await pool.query(sqlStatement);
 
-  const upcomingEvents = sqlResponse.rows.map(e => {
+  const upcomingEvents = sqlResponse.rows.map((e) => {
     const event: Event = {
       ...e,
       startTimeStamp: e.starttimestamp,
@@ -222,10 +222,10 @@ export async function getUpcomingEvents(req: Request, res: Response) {
 export async function deleteEvent(req: Request, res: Response) {
   const eventid = req.params.eventid;
   pool.query(
-    'DELETE FROM Events WHERE  id = ' + eventid,
+    "DELETE FROM Events WHERE  id = " + eventid,
     (err, queryResponse) => {
       return res.json({
-        message: 'User deleted: ' + eventid,
+        message: "User deleted: " + eventid,
       });
     }
   );
